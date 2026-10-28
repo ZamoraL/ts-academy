@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
+import { createHashRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { Dashboard } from './pages/Dashboard'
 import { Onboarding } from './pages/Onboarding'
@@ -18,7 +18,7 @@ function RequireConfig() {
   return config ? <Outlet /> : <Navigate to="/bienvenida" replace />
 }
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   { path: '/bienvenida', element: <Onboarding /> },
   {
     element: <RequireConfig />,

@@ -59,10 +59,10 @@ test('muestra el título', () => {
         language: 'javascript',
         react: true,
         prompt:
-          "Crea un componente `Perfil` que devuelva una imagen (`<img>`) con `src=\"https://i.pravatar.cc/80\"` y `alt=\"Avatar\"`. Luego haz que `Galeria` muestre un título `<h2>Equipo</h2>` y **tres** `Perfil`.",
+          "Crea un componente `Perfil` que devuelva una imagen (`<img>`) con `src=\"avatares/Persona.svg\"` y `alt=\"Avatar\"`. Luego haz que `Galeria` muestre un título `<h2>Equipo</h2>` y **tres** `Perfil`.",
         starter: 'export default function Galeria() {\n  return <h2>Equipo</h2>\n}\n',
         solution: `function Perfil() {
-  return <img src="https://i.pravatar.cc/80" alt="Avatar" />
+  return <img src="avatares/Persona.svg" alt="Avatar" />
 }
 
 export default function Galeria() {
@@ -162,7 +162,7 @@ test('estilo', () => {
         starter: `const cientifica = {
   nombre: 'Hedy Lamarr',
   nacimiento: 1914,
-  foto: 'https://i.pravatar.cc/100?img=47',
+  foto: 'avatares/Hedy.svg',
 }
 
 export default function Ficha() {
@@ -176,7 +176,7 @@ export default function Ficha() {
         solution: `const cientifica = {
   nombre: 'Hedy Lamarr',
   nacimiento: 1914,
-  foto: 'https://i.pravatar.cc/100?img=47',
+  foto: 'avatares/Hedy.svg',
 }
 
 export default function Ficha() {
@@ -201,7 +201,7 @@ test('edad', () => {
 })
 test('foto', () => {
   render(<Ficha />)
-  expect(screen.getByRole('img', { name: 'Foto de Hedy Lamarr' }).getAttribute('src')).toBe('https://i.pravatar.cc/100?img=47')
+  expect(screen.getByRole('img', { name: 'Foto de Hedy Lamarr' }).getAttribute('src')).toBe('avatares/Hedy.svg')
 })`,
       },
     ],
@@ -223,7 +223,7 @@ test('foto', () => {
         language: 'javascript',
         react: true,
         prompt:
-          '`Avatar` debe recibir `nombre` y `tamaño` (por defecto `48`) y mostrar una `<img>` con `alt={nombre}`, `width` y `height` iguales a `tamaño`, y `src` = `https://i.pravatar.cc/<tamaño>`. `App` muestra uno de Ada (tamaño 80) y otro de Grace (sin tamaño).',
+          '`Avatar` debe recibir `nombre` y `tamaño` (por defecto `48`) y mostrar una `<img>` con `alt={nombre}`, `width` y `height` iguales a `tamaño`, y `src` = `avatares/<nombre>.svg`. `App` muestra uno de Ada (tamaño 80) y otro de Grace (sin tamaño).',
         starter: `function Avatar() {
   return <img />
 }
@@ -237,7 +237,7 @@ export default function App() {
 }
 `,
         solution: `function Avatar({ nombre, tamaño = 48 }) {
-  return <img src={\`https://i.pravatar.cc/\${tamaño}\`} alt={nombre} width={tamaño} height={tamaño} />
+  return <img src={\`avatares/\${nombre}.svg\`} alt={nombre} width={tamaño} height={tamaño} />
 }
 
 export default function App() {
@@ -249,13 +249,13 @@ export default function App() {
   )
 }
 `,
-        hints: ['`function Avatar({ nombre, tamaño = 48 })`', 'Los números se pasan con llaves: `tamaño={80}`.'],
+        hints: ['`function Avatar({ nombre, tamaño = 48 })`', 'Los números se pasan con llaves: `tamaño={80}`.', 'Arma el `src` con un template literal: `src={`avatares/${nombre}.svg`}`.'],
         tests: `
 test('Avatar con tamaño', () => {
   render(<Avatar nombre="Linus" tamaño={32} />)
   const __img = screen.getByRole('img', { name: 'Linus' })
   expect(__img.getAttribute('width')).toBe('32')
-  expect(__img.getAttribute('src')).toBe('https://i.pravatar.cc/32')
+  expect(__img.getAttribute('src')).toBe('avatares/Linus.svg')
 })
 test('tamaño por defecto', () => {
   render(<Avatar nombre="X" />)

@@ -101,9 +101,3 @@ export function exportProgress(): ProgressData {
   const { config, completed, exercises, quizzes, notes, repasos, activity } = useProgress.getState()
   return { config, completed, exercises, quizzes, notes, repasos, activity }
 }
-
-export function isProgressData(value: unknown): value is ProgressData {
-  if (typeof value !== 'object' || value === null) return false
-  const v = value as Record<string, unknown>
-  return typeof v.completed === 'object' && typeof v.exercises === 'object' && Array.isArray(v.activity)
-}

@@ -1,8 +1,12 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlanForm } from '../components/PlanForm'
+import { EXERCISES, UNITS } from '../content'
 import { todayISO } from '../lib/date'
-import { exportProgress, isProgressData, useProgress } from '../store/progress'
+import { parseProgressData } from '../lib/importProgress'
+import { exportProgress, useProgress } from '../store/progress'
+
+const KNOWN_IDS = { units: new Set(UNITS.map((u) => u.id)), exercises: new Set(EXERCISES.map((e) => e.id)) }
 
 export function Settings() {
   const config = useProgress((s) => s.config)
@@ -24,8 +28,13 @@ export function Settings() {
 
   async function upload(file: File) {
     try {
-      const data: unknown = JSON.parse(await file.text())
-      if (!isProgressData(data)) throw new Error('formato')
+      const data = parseProgressData(JSON.parse(await file.text()), KNOWN_IDS)
+      if (!data) throw new Error('formato')
+      const ok = confirm(
+        'Importar reemplaza todo tu progreso actual.\n\n' +
+          'Importa solo respaldos que hayas exportado tú: el código guardado en el archivo se ejecuta al comprobar un ejercicio.',
+      )
+      if (!ok) return setMessage(null)
       importData(data)
       setMessage('Progreso importado.')
     } catch {
