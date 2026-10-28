@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vista previa</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 12px;
+        font: 15px/1.5 system-ui, sans-serif;
+        color: #0f172a;
+        background: #fff;
+      }
+      button {
+        font: inherit;
+        padding: 4px 12px;
+        margin: 2px;
+        cursor: pointer;
+      }
+      input,
+      select,
+      textarea {
+        font: inherit;
+        padding: 3px 6px;
+        margin: 2px;
+      }
+      .__error {
+        color: #b91c1c;
+        font-family: ui-monospace, monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="preview"></div>
+    <script type="module" src="/src/sandbox/main.tsx"></script>
+  </body>
+</html>
