@@ -7,12 +7,7 @@ export default defineConfig({
   // Rutas relativas: funciona en cualquier subcarpeta (p. ej. GitHub Pages en /<repo>/). Las rutas van en el hash.
   base: './',
   plugins: [react(), tailwindcss()],
-  build: {
-    // Segunda página: el sandbox donde corren los ejercicios de React.
-    rollupOptions: {
-      input: { main: 'index.html', sandbox: 'sandbox.html' },
-    },
-  },
+  // El sandbox de los ejercicios de React tiene su propio build: vite.sandbox.config.ts.
   test: {
     include: ['src/**/*.test.ts'],
   },

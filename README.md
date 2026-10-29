@@ -44,7 +44,7 @@ No hay servidor ni cuentas: el progreso solo vive en el `localStorage` del naveg
 ## Motor de ejercicios
 
 - **JS/TS**: Monaco comprueba los tipos (código del alumno + `typeTests`) y compila con su TypeScript a CommonJS; un Web Worker ejecuta el código con los `tests` y se corta a los 3 s.
-- **React** (`react: true`, archivos `.jsx`/`.tsx`): el JS compilado corre en un iframe (`sandbox.html`) con React, Testing Library y Zod. `require` solo provee `react`, `react/jsx-runtime`, `react-dom/client` y `zod`. Los bucles con `{` llevan una guarda de tiempo (el iframe comparte hilo con la app). El componente exportado por defecto se muestra en la vista previa.
+- **React** (`react: true`, archivos `.jsx`/`.tsx`): el JS compilado corre en un iframe (`sandbox.html`) con React, Testing Library y Zod. `require` solo provee `react`, `react/jsx-runtime`, `react-dom/client` y `zod`. Los bucles con `{` llevan una guarda de tiempo (el iframe comparte hilo con la app). El componente exportado por defecto se muestra en la vista previa. El sandbox tiene su propio build (`vite.sandbox.config.ts`) con la versión de desarrollo de React, porque Testing Library necesita `act`.
 - Los tipos de React y Zod se cargan en Monaco la primera vez que se abre un ejercicio de React.
 
 ## Escribir ejercicios
