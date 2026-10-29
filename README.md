@@ -17,14 +17,6 @@ npm test        # tests de scheduler, racha, estadísticas y contenido
 npm run build
 ```
 
-## Publicar en GitHub Pages
-
-1. Sube el repo a GitHub (rama `main`).
-2. En el repo: **Settings → Pages → Source: GitHub Actions**.
-3. Cada push a `main` ejecuta `.github/workflows/deploy.yml` (tests + build) y publica `dist/`.
-
-La app usa rutas relativas (`base: './'`) y rutas en el hash (`#/unidad/a01`), así que funciona en cualquier subcarpeta sin configurar nada más.
-
 ## Seguridad
 
 No hay servidor ni cuentas: el progreso solo vive en el `localStorage` del navegador. Al importar un respaldo, el archivo se reconstruye campo a campo (`src/lib/importProgress.ts`) y se pide confirmación, porque el código guardado se ejecuta al comprobar un ejercicio.
