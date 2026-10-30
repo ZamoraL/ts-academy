@@ -1,24 +1,159 @@
 @import 'tailwindcss';
 
-@theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --color-brand-300: #8ab4ff;
-  --color-brand-400: #5b94ff;
-  --color-brand-500: #3178c6;
-  --color-brand-600: #235a97;
+/* Paleta: Rotom (pokemonpalette.com, MIT), generada con ZL-UI. Naranja: el tramo recorrido; turquesa: repasos. */
+:root {
+  color-scheme: light;
+  --bg: #f9f7f6;
+  --surface: #fefefe;
+  --surface-2: #f1ecea;
+  --border: #ded7d3;
+  --fg: #261c17;
+  --fg-muted: #78675e;
+  --accent: #e87537;
+  --on-accent: #201813;
+  --accent-ink: #af4a14;
+  --support: #29acbd;
+  --support-ink: #1b737e;
+  --danger: #c52036;
+  --on-danger: #ffffff;
+  --danger-ink: #c52036;
+  --success: #34b268;
+  --on-success: #201813;
+  --success-ink: #237745;
 }
-
-html {
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #181311;
+    --surface: #241d19;
+    --surface-2: #2f2722;
+    --border: #473d38;
+    --fg: #f2efee;
+    --fg-muted: #afa6a1;
+    --accent: #e87537;
+    --on-accent: #201813;
+    --accent-ink: #e87537;
+    --support: #29acbd;
+    --support-ink: #29acbd;
+    --danger: #e25063;
+    --on-danger: #201813;
+    --danger-ink: #e66676;
+    --success: #61d190;
+    --on-success: #201813;
+    --success-ink: #61d190;
+  }
+}
+:root[data-theme='dark'] {
   color-scheme: dark;
+  --bg: #181311;
+  --surface: #241d19;
+  --surface-2: #2f2722;
+  --border: #473d38;
+  --fg: #f2efee;
+  --fg-muted: #afa6a1;
+  --accent: #e87537;
+  --on-accent: #201813;
+  --accent-ink: #e87537;
+  --support: #29acbd;
+  --support-ink: #29acbd;
+  --danger: #e25063;
+  --on-danger: #201813;
+  --danger-ink: #e66676;
+  --success: #61d190;
+  --on-success: #201813;
+  --success-ink: #61d190;
 }
 
-body {
-  @apply bg-slate-950 text-slate-200 antialiased;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-support: var(--support);
+  --color-support-ink: var(--support-ink);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-danger-ink: var(--danger-ink);
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
+  --color-success-ink: var(--success-ink);
 }
 
-/* Sin ligaduras: quien aprende debe ver `=>` y `>=` tal como se escriben. */
-code,
-pre {
-  font-variant-ligatures: none;
+@theme {
+  --font-sans: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Unbounded', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
+
+/* En @layer base para que las utilidades de Tailwind puedan sobrescribirlo. */
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-ink);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  /* Rótulo de señalética: Unbounded, compacto. */
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Los números se comparan: siempre alineados. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Sin ligaduras: quien aprende debe ver `=>` y `>=` tal como se escriben. */
+  code,
+  pre,
+  .font-mono {
+    font-variant-ligatures: none;
+  }
+
+  /* Tecla de atajo. */
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    padding: 3px 5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--fg-muted);
+    background: var(--surface);
+  }
+
+  details > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
 }

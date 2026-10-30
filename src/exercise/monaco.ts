@@ -2,6 +2,7 @@ import { loader } from '@monaco-editor/react'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import { onTemaCambia, temaResuelto, type Tema } from '../lib/theme'
 
 self.MonacoEnvironment = {
   getWorker(_id, label) {
@@ -88,7 +89,45 @@ export function cargarTiposReact(): Promise<void> {
 }
 
 loader.config({ monaco })
+
+// Temas del editor con los colores de la paleta (los mismos valores que --surface, --border… en index.css).
+monaco.editor.defineTheme('academia-claro', {
+  base: 'vs',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.background': '#fefefe',
+    'editor.lineHighlightBackground': '#f1ecea',
+    'editor.lineHighlightBorder': '#00000000',
+    'editorLineNumber.foreground': '#78675e',
+    'editorLineNumber.activeForeground': '#261c17',
+    'editorIndentGuide.background1': '#ded7d3',
+    'editor.selectionBackground': '#e8753740',
+    'editorCursor.foreground': '#af4a14',
+  },
+})
+monaco.editor.defineTheme('academia-oscuro', {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.background': '#241d19',
+    'editor.lineHighlightBackground': '#2f2722',
+    'editor.lineHighlightBorder': '#00000000',
+    'editorLineNumber.foreground': '#9a8f89',
+    'editorLineNumber.activeForeground': '#f2efee',
+    'editorIndentGuide.background1': '#473d38',
+    'editor.selectionBackground': '#e8753740',
+    'editorCursor.foreground': '#e87537',
+  },
+})
+
+export function temaMonaco(tema: Tema): string {
+  return tema === 'oscuro' ? 'academia-oscuro' : 'academia-claro'
+}
+
 // Registra los estilos del tema: colorize (bloques de código de las lecciones) los usa sin crear un editor.
-monaco.editor.setTheme('vs-dark')
+monaco.editor.setTheme(temaMonaco(temaResuelto()))
+onTemaCambia(() => monaco.editor.setTheme(temaMonaco(temaResuelto())))
 
 export { monaco }

@@ -47,3 +47,7 @@ No hay servidor ni cuentas: el progreso solo vive en el `localStorage` del naveg
 - Usa nombres con prefijo `__` en los tests para no chocar con variables del alumno.
 
 En desarrollo, `/dev/verificar` comprueba que cada solución pase y cada código inicial falle (`?prefijo=g` limita a un bloque).
+
+## Créditos
+
+Colores de la paleta Rotom de [pokemonpalette.com](https://pokemonpalette.com) (MIT). Tipografías Unbounded, Atkinson Hyperlegible Next y Geist Mono (SIL OFL).

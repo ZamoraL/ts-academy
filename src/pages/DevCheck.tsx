@@ -45,14 +45,14 @@ export default function DevCheck() {
   const ok = rows.filter((r) => r.solution.passed && !r.starter.passed).length
   return (
     <div className="space-y-4 font-mono text-sm">
-      <h1 id="summary" data-done={done} className="text-lg text-white">
+      <h1 id="summary" data-done={done} className="text-lg font-bold">
         {done ? `OK ${ok}/${rows.length}` : `Verificando ${rows.length}/${ejercicios.length}…`}
       </h1>
       <ul className="space-y-2">
         {rows.map((r) => {
           const good = r.solution.passed && !r.starter.passed
           return (
-            <li key={r.id} className={good ? 'text-emerald-400' : 'text-red-400'} data-row={good ? 'ok' : 'fail'}>
+            <li key={r.id} className={good ? 'text-success-ink' : 'text-danger-ink'} data-row={good ? 'ok' : 'fail'}>
               {good ? '✓' : '✗'} {r.id}
               {!r.solution.passed && <div>solución falla → {describe(r.solution)}</div>}
               {r.starter.passed && <div>el código inicial ya pasa</div>}

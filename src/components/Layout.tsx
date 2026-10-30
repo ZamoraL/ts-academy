@@ -1,60 +1,70 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { UNITS } from '../content'
-import { todayISO } from '../lib/date'
-import { computeStreak } from '../lib/streak'
 import { useProgress } from '../store/progress'
+import { CommandPalette } from './CommandPalette'
+import { teclaMod } from './styles'
 
 const NAV = [
   { to: '/', label: 'Hoy', end: true },
-  { to: '/plan', label: 'Plan' },
-  { to: '/temario', label: 'Temario' },
+  { to: '/temario', label: 'Plano' },
+  { to: '/plan', label: 'Horario' },
   { to: '/ajustes', label: 'Ajustes' },
 ]
 
 export function Layout() {
-  const completed = useProgress((s) => s.completed)
-  const activity = useProgress((s) => s.activity)
-  const pace = useProgress((s) => s.config?.pace ?? 'daily')
-  const done = Object.keys(completed).length
-  const percent = Math.round((done / UNITS.length) * 100)
-  const streak = computeStreak(activity, todayISO(), pace)
+  const done = useProgress((s) => Object.keys(s.completed).length)
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <NavLink to="/" className="flex items-center gap-2 font-semibold text-white">
-            <span className="grid h-7 w-7 place-items-center rounded bg-brand-500 text-xs font-bold">TS</span>
-            Academy
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-20 focus:bg-surface focus:px-3 focus:py-2"
+      >
+        Saltar al contenido
+      </a>
+      <header className="sticky top-0 z-10 border-b border-border bg-bg">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-8 px-4 sm:px-6">
+          <NavLink to="/" className="flex h-14 items-center gap-2">
+            <span className="font-display grid h-8 w-8 place-items-center rounded-full bg-fg text-[11px] text-bg" aria-hidden>
+              TS
+            </span>
+            <span className="font-display text-sm">Academy</span>
           </NavLink>
-          <nav className="flex gap-1">
+          <nav aria-label="Principal" className="order-last -mx-2 flex w-full sm:order-none sm:mx-0 sm:w-auto">
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `rounded-md px-3 py-1.5 text-sm ${isActive ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`
+                  `flex h-11 items-center border-b-4 px-2 sm:h-14 sm:px-3 ${
+                    isActive ? 'border-accent font-bold text-fg' : 'border-transparent text-fg-muted hover:text-fg'
+                  }`
                 }
               >
                 {item.label}
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-4 text-sm text-slate-400">
-            <span title="Racha de días">🔥 {streak}</span>
-            <span className="flex items-center gap-2" title={`${done} de ${UNITS.length} unidades`}>
-              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-800">
-                <span className="block h-full bg-brand-400" style={{ width: `${percent}%` }} />
-              </span>
-              {percent}%
+          <div className="ml-auto flex items-center gap-4">
+            <span className="tabular hidden text-sm text-fg-muted sm:inline" title="Estaciones recorridas">
+              {done}/{UNITS.length} estaciones
             </span>
+            <button
+              onClick={() => window.dispatchEvent(new Event('abrir-buscador'))}
+              className="flex h-9 items-center gap-2 rounded-md border border-border px-2.5 text-sm text-fg-muted hover:text-fg"
+            >
+              <span className="hidden sm:inline">Buscar estación</span>
+              <span className="sm:hidden">Buscar</span>
+              <kbd className="hidden sm:inline">{teclaMod} K</kbd>
+            </button>
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main id="contenido" className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
         <Outlet />
       </main>
+      <CommandPalette />
     </div>
   )
 }

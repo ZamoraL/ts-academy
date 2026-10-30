@@ -4,6 +4,7 @@ import { DURATION_PRESETS, PACES } from '../lib/scheduler'
 import { useSchedule } from '../lib/useSchedule'
 import type { Pace, PlanConfig } from '../types'
 import { FeasibilityNote } from './FeasibilityNote'
+import { btn } from './styles'
 
 interface Props {
   initial?: PlanConfig | null
@@ -30,94 +31,118 @@ export function PlanForm({ initial, submitLabel, onSubmit }: Props) {
       }}
     >
       <fieldset>
-        <legend className="mb-3 font-medium text-white">¿En cuánto tiempo quieres aprender?</legend>
-        <div className="flex flex-wrap gap-2">
+        <legend className="mb-3 font-bold">¿En cuánto tiempo quieres aprender?</legend>
+        <div className="flex flex-wrap gap-px overflow-hidden rounded-sm border border-border bg-border sm:inline-flex">
           {DURATION_PRESETS.map((p) => (
-            <Choice
+            <Opcion
               key={p.weeks}
-              active={!custom && durationWeeks === p.weeks}
-              onClick={() => {
+              name="duracion"
+              checked={!custom && durationWeeks === p.weeks}
+              onChange={() => {
                 setCustom(false)
                 setDurationWeeks(p.weeks)
               }}
             >
               {p.label}
-            </Choice>
+            </Opcion>
           ))}
-          <Choice active={custom} onClick={() => setCustom(true)}>
+          <Opcion name="duracion" checked={custom} onChange={() => setCustom(true)}>
             Personalizado
-          </Choice>
+          </Opcion>
         </div>
         {custom && (
-          <label className="mt-3 flex items-center gap-2 text-sm text-slate-300">
+          <div className="mt-3 flex items-center gap-2">
             <input
+              id="semanas"
               type="number"
               min={1}
               max={156}
               value={durationWeeks}
-              onChange={(e) => setDurationWeeks(Math.max(1, Number(e.target.value) || 1))}
-              className="w-20 rounded-md border border-slate-700 bg-slate-900 px-2 py-1"
+              onChange={(e) => setDurationWeeks(Math.min(156, Math.max(1, Number(e.target.value) || 1)))}
+              className="tabular h-10 w-20 rounded-sm border border-border bg-surface px-2 text-base"
             />
-            semanas
-          </label>
+            <label htmlFor="semanas">semanas (entre 1 y 156)</label>
+          </div>
         )}
       </fieldset>
 
       <fieldset>
-        <legend className="mb-3 font-medium text-white">¿Qué ritmo prefieres?</legend>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <legend className="mb-3 font-bold">¿Qué ritmo prefieres?</legend>
+        <div className="divide-y divide-border rounded-sm border border-border">
           {(Object.keys(PACES) as Pace[]).map((key) => (
-            <button
-              type="button"
+            <label
               key={key}
-              onClick={() => setPace(key)}
-              className={`rounded-lg border p-4 text-left transition ${
-                pace === key ? 'border-brand-400 bg-brand-500/10' : 'border-slate-800 hover:border-slate-600'
+              className={`flex cursor-pointer items-start gap-3 px-4 py-3 hover:bg-surface-2 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent-ink ${
+                pace === key ? 'bg-surface-2' : ''
               }`}
             >
-              <div className="font-medium text-white">{PACES[key].label}</div>
-              <div className="mt-1 text-sm text-slate-400">{PACES[key].description}</div>
-            </button>
+              <input
+                type="radio"
+                name="ritmo"
+                checked={pace === key}
+                onChange={() => setPace(key)}
+                className="mt-1 accent-[var(--accent-ink)]"
+              />
+              <span>
+                <span className="block font-bold">{PACES[key].label}</span>
+                <span className="block text-fg-muted">{PACES[key].description}</span>
+              </span>
+            </label>
           ))}
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend className="mb-3 font-medium text-white">¿Cuándo empiezas?</legend>
+      <div>
+        <label htmlFor="inicio" className="mb-3 block font-bold">
+          ¿Cuándo empiezas?
+        </label>
         <input
+          id="inicio"
           type="date"
           value={startDate}
           onChange={(e) => e.target.value && setStartDate(e.target.value)}
-          className="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5"
+          className="tabular h-10 rounded-sm border border-border bg-surface px-3 text-base"
         />
-      </fieldset>
+      </div>
 
       {preview && (
-        <div className="rounded-lg border border-slate-800 bg-slate-900 p-4 text-sm">
-          <p>
-            Fin del plan: <strong className="text-white">{formatLong(preview.endDate)}</strong>
+        <div className="rounded-sm border border-border bg-surface px-4 py-3 font-mono text-[13px]" aria-live="polite">
+          <p className="mb-1">
+            <span className="text-fg-muted">fin del plan</span>{' '}
+            <span className="first-letter:uppercase">{formatLong(preview.endDate)}</span>
           </p>
-          <FeasibilityNote schedule={preview} durationWeeks={durationWeeks} />
+          <div className="font-sans text-sm">
+            <FeasibilityNote schedule={preview} durationWeeks={durationWeeks} />
+          </div>
         </div>
       )}
 
-      <button type="submit" className="rounded-md bg-brand-500 px-5 py-2 font-medium text-white hover:bg-brand-600">
+      <button type="submit" className={btn.primary}>
         {submitLabel}
       </button>
     </form>
   )
 }
 
-function Choice({ active, onClick, children }: { active: boolean; onClick(): void; children: ReactNode }) {
+function Opcion({
+  name,
+  checked,
+  onChange,
+  children,
+}: {
+  name: string
+  checked: boolean
+  onChange(): void
+  children: ReactNode
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full border px-4 py-1.5 text-sm ${
-        active ? 'border-brand-400 bg-brand-500/15 text-white' : 'border-slate-700 text-slate-300 hover:border-slate-500'
+    <label
+      className={`flex min-h-10 flex-1 cursor-pointer items-center justify-center px-4 text-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent-ink sm:flex-none ${
+        checked ? 'bg-fg font-bold text-bg' : 'bg-surface hover:bg-surface-2'
       }`}
     >
+      <input type="radio" name={name} checked={checked} onChange={onChange} className="sr-only" />
       {children}
-    </button>
+    </label>
   )
 }

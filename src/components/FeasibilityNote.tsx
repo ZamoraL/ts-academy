@@ -7,22 +7,22 @@ export function FeasibilityNote({ schedule, durationWeeks }: { schedule: Schedul
 
   if (schedule.feasible) {
     return (
-      <p className="mt-1 text-emerald-400">
-        ✓ Te alcanza el tiempo ({hours} h de contenido pendiente)
-        {reviews > 0 && `, con ${reviews} días extra de repaso intercalados`}.
+      <p className="text-fg-muted">
+        <span className="text-success-ink">✓</span> Te alcanza el tiempo: {hours} h de contenido pendiente
+        {reviews > 0 && `, con ${reviews === 1 ? '1 día' : `${reviews} días`} extra de repaso`}.
       </p>
     )
   }
 
   const alternatives = schedule.feasiblePaces.map((p) => PACES[p].label)
   return (
-    <div className="mt-1 text-amber-400">
+    <div>
       <p>
-        ⚠ Con este ritmo no terminas en {durationWeeks} semanas: acabarías el{' '}
-        {schedule.projectedEndDate && formatLong(schedule.projectedEndDate)} ({hours} h de contenido).
+        <span className="font-mono text-danger-ink">!</span> Con este ritmo no terminas en {durationWeeks} semanas:
+        acabarías el {schedule.projectedEndDate && formatLong(schedule.projectedEndDate)} ({hours} h de contenido).
       </p>
-      <p className="mt-1 text-amber-300/80">
-        Opciones: ampliar a <strong>{schedule.minWeeksForPace} semanas</strong>
+      <p className="mt-1 text-fg-muted">
+        Puedes ampliar a <strong className="font-bold text-fg">{schedule.minWeeksForPace} semanas</strong>
         {alternatives.length > 0 && <> o cambiar a: {alternatives.join(', ')}</>}.
       </p>
     </div>

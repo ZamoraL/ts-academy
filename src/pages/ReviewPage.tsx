@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ExercisePanel } from '../components/ExercisePanel'
 import { Quiz } from '../components/Quiz'
+import { btn, link, plural } from '../components/styles'
+import { PageHeader } from '../components/ui'
+import { KIND_HINT } from '../lib/kinds'
 import { getUnit } from '../content'
 import { formatLong } from '../lib/date'
 import { useSchedule } from '../lib/useSchedule'
@@ -19,10 +22,13 @@ export default function ReviewPage() {
   if (!dia) {
     return (
       <div className="space-y-3">
-        <p className="text-slate-300">No hay un repaso planificado para esta fecha.</p>
-        <Link to="/plan" className="text-brand-300 underline">
-          Ver el plan
-        </Link>
+        <h1 className="text-2xl font-bold">No hay repaso ese día</h1>
+        <p className="text-fg-muted">
+          El {fecha} no tiene un repaso planificado; puede que el plan se haya recalculado.{' '}
+          <Link to="/plan" className={link}>
+            Ver el plan
+          </Link>
+        </p>
       </div>
     )
   }
@@ -31,33 +37,35 @@ export default function ReviewPage() {
   const titulo = dia.kind === 'practice' ? 'Práctica semanal' : 'Repaso'
 
   return (
-    <div className="space-y-6">
-      <header>
-        <p className="text-sm text-slate-500 first-letter:uppercase">{formatLong(fecha)}</p>
-        <h1 className="text-2xl font-bold text-white">{titulo}</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Rehaz los ejercicios <strong className="text-slate-200">desde el código inicial</strong>, sin mirar tu
-          solución anterior, y repite los quizzes. Tu código guardado en cada unidad no se modifica. Si algo cuesta,
-          vuelve a la lección.
+    <div className="space-y-8">
+      <PageHeader title={titulo} meta={<span className="first-letter:uppercase">{formatLong(fecha)}</span>} />
+      <p className="max-w-[68ch] text-base">
+        {KIND_HINT[dia.kind]} Empiezas <strong className="font-bold">desde el código inicial</strong>; tu código
+        guardado en cada unidad no se modifica.
+      </p>
+
+      {unidades.length === 0 ? (
+        <p className="text-fg-muted">
+          Todavía no hay unidades que repasar: aparecen aquí a medida que completas lecciones.
         </p>
-      </header>
+      ) : (
+        <div className="divide-y divide-border border-y border-border">
+          {unidades.map((u) => (
+            <UnidadRepaso key={u.id} unidad={u} />
+          ))}
+        </div>
+      )}
 
-      {unidades.length === 0 && <p className="text-slate-400">No hay unidades que repasar todavía.</p>}
-
-      {unidades.map((u) => (
-        <UnidadRepaso key={u.id} unidad={u} />
-      ))}
-
-      <footer className="border-t border-slate-800 pt-6">
+      <footer className="border-t border-border pt-6">
         {hecho ? (
-          <p className="text-emerald-400">✓ Repaso terminado</p>
+          <p className="font-mono text-success-ink">✓ {titulo} terminado</p>
         ) : (
           <button
             onClick={() => {
               completeReview(fecha)
               navigate('/')
             }}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className={btn.primary}
           >
             Terminar {titulo.toLowerCase()}
           </button>
@@ -74,22 +82,25 @@ function UnidadRepaso({ unidad }: { unidad: Unit }) {
   const total = unidad.exercises.length
 
   return (
-    <section className="rounded-xl border border-slate-800">
+    <section>
       <button
         onClick={() => setAbierta((a) => !a)}
         aria-expanded={abierta}
-        className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-slate-900"
+        className="flex min-h-12 w-full flex-wrap items-center gap-x-3 gap-y-1 px-1 py-2 text-left hover:bg-surface-2"
       >
-        <span className="text-slate-500">{abierta ? '▾' : '▸'}</span>
-        <span className="font-medium text-white">{unidad.title}</span>
-        <span className="ml-auto text-xs text-slate-500">
+        <span className="w-4 font-mono text-fg-muted" aria-hidden>
+          {abierta ? '▾' : '▸'}
+        </span>
+        <span className="w-8 font-mono text-xs text-fg-muted">{unidad.id}</span>
+        <span className="font-bold">{unidad.title}</span>
+        <span className="tabular ml-auto font-mono text-xs text-fg-muted">
           {total > 0 && `${resueltos.size}/${total} ejercicios · `}
-          {unidad.quiz.length} preguntas
+          {plural(unidad.quiz.length, 'pregunta', 'preguntas')}
         </span>
       </button>
       {abierta && (
-        <div className="space-y-6 border-t border-slate-800 p-4">
-          <Link to={`/unidad/${unidad.id}`} className="text-sm text-brand-300 underline">
+        <div className="space-y-6 pt-2 pb-6 sm:pl-16">
+          <Link to={`/unidad/${unidad.id}`} className={`${link} text-sm`}>
             Releer la lección
           </Link>
           {unidad.exercises.map((ex, i) => (
@@ -97,6 +108,7 @@ function UnidadRepaso({ unidad }: { unidad: Unit }) {
               key={ex.id}
               exercise={ex}
               index={i}
+              total={total}
               modoRepaso
               onResuelto={() => setResueltos((r) => new Set(r).add(ex.id))}
             />

@@ -32,13 +32,13 @@ export function CodeBlock({ code, lang }: { code: string; lang?: string }) {
     }
   }, [code, lenguaje])
 
-  const clase = 'my-4 overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-4 font-mono text-sm leading-6'
+  const clase = 'my-4 overflow-x-auto rounded-sm border border-border bg-surface p-4 font-mono text-[13px] leading-6'
   if (html && html.code === code) {
     return <pre className={clase} dangerouslySetInnerHTML={{ __html: html.html }} />
   }
   return (
     <pre className={clase}>
-      <code className="text-slate-200">{code}</code>
+      <code>{code}</code>
     </pre>
   )
 }

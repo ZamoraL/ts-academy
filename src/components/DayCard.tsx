@@ -1,85 +1,79 @@
 import { Link } from 'react-router-dom'
 import { getUnit } from '../content'
-import { formatLong } from '../lib/date'
+import { formatShort } from '../lib/date'
+import { KIND_LABEL } from '../lib/kinds'
 import { useProgress } from '../store/progress'
-import type { DayKind, ScheduledDay } from '../types'
+import type { DayKind } from '../types'
+import { plural } from './styles'
+import { Tag } from './ui'
 
-const KIND_LABEL: Record<DayKind, string> = {
-  study: 'Lección',
-  review: 'Repaso',
-  practice: 'Práctica semanal',
+export function KindBadge({ kind, accent = false }: { kind: DayKind; accent?: boolean }) {
+  return <Tag tono={kind === 'study' ? (accent ? 'accent' : 'neutro') : 'support'}>{KIND_LABEL[kind]}</Tag>
 }
 
-const KIND_STYLE: Record<DayKind, string> = {
-  study: 'bg-brand-500/15 text-brand-300',
-  review: 'bg-violet-500/15 text-violet-300',
-  practice: 'bg-amber-500/15 text-amber-300',
+interface UnitRowProps {
+  unitId: string
+  /** La siguiente parada: anillo grande y título en negrita. */
+  actual?: boolean
+  meta?: string
+  /** Repaso: estación turquesa. */
+  repaso?: boolean
 }
 
-const KIND_HINT: Record<DayKind, string> = {
-  study: '',
-  review: 'Relee estas unidades, repite el quiz y rehaz los ejercicios sin mirar tu solución anterior.',
-  practice: 'Rehaz los ejercicios de la semana desde cero. Si alguno cuesta, vuelve a la lección.',
-}
-
-export function KindBadge({ kind }: { kind: DayKind }) {
-  return <span className={`rounded px-2 py-0.5 text-xs font-medium ${KIND_STYLE[kind]}`}>{KIND_LABEL[kind]}</span>
-}
-
-export function DayCard({ day, title }: { day: ScheduledDay; title?: string }) {
-  const repasoHecho = useProgress((s) => day.date in s.repasos)
-  return (
-    <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <h2 className="text-lg font-semibold text-white">{title ?? formatLong(day.date)}</h2>
-        <KindBadge kind={day.kind} />
-        <span className="text-sm text-slate-500">~{day.minutes} min</span>
-        {day.kind !== 'study' &&
-          (repasoHecho ? (
-            <span className="ml-auto text-sm text-emerald-400">✓ Hecho</span>
-          ) : (
-            <Link
-              to={`/repaso/${day.date}`}
-              className="ml-auto rounded-md bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600"
-            >
-              Empezar {day.kind === 'practice' ? 'práctica' : 'repaso'}
-            </Link>
-          ))}
-      </div>
-      {KIND_HINT[day.kind] && <p className="mb-3 text-sm text-slate-400">{KIND_HINT[day.kind]}</p>}
-      <ul className="space-y-2">
-        {day.unitIds.map((id) => (
-          <UnitRow key={id} unitId={id} />
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-export function UnitRow({ unitId }: { unitId: string }) {
+/**
+ * Parada en un esquema vertical de línea: la vía pasa por la izquierda y cada unidad es una estación.
+ * Va dentro de un <ol> o <ul>; la vía se dibuja tramo a tramo para que la lista funcione sola.
+ */
+export function UnitRow({ unitId, actual = false, meta, repaso = false }: UnitRowProps) {
   const unit = getUnit(unitId)
-  const done = useProgress((s) => unitId in s.completed)
+  const completedAt = useProgress((s) => s.completed[unitId])
+  const done = completedAt !== undefined
+  const solved = useProgress((s) => unit?.exercises.filter((e) => s.exercises[e.id]?.passed).length ?? 0)
   if (!unit) return null
+
+  const total = unit.exercises.length
+  const detalle =
+    meta ??
+    (done
+      ? `hecha ${formatShort(completedAt!)}`
+      : solved > 0
+        ? `${solved}/${total} ejercicios`
+        : [total > 0 && plural(total, 'ejercicio', 'ejercicios'), `${unit.minutes} min`].filter(Boolean).join(' · '))
+
+  const via = repaso ? 'bg-support' : done ? 'bg-accent' : 'bg-border'
+  const punto = actual
+    ? 'h-4 w-4 border-4 border-accent bg-bg'
+    : repaso
+      ? 'h-3 w-3 border-[3px] border-support bg-bg'
+      : done
+        ? 'h-3 w-3 bg-accent ring-[3px] ring-bg'
+        : 'h-3 w-3 border-2 border-fg-muted bg-bg'
+
   return (
-    <li>
+    <li className="group/parada relative">
+      <span
+        className={`absolute top-0 bottom-0 left-[19px] w-1 group-first/parada:top-1/2 group-last/parada:bottom-1/2 ${via}`}
+        aria-hidden
+      />
       <Link
         to={`/unidad/${unit.id}`}
-        className="flex items-center gap-3 rounded-lg border border-slate-800 px-3 py-2 hover:border-slate-600 hover:bg-slate-800/50"
+        data-fila
+        aria-current={actual ? 'step' : undefined}
+        className="relative flex min-h-12 items-center gap-3 rounded-md py-2 pr-3 pl-2.5 hover:bg-surface-2 focus-visible:bg-surface-2"
       >
-        <span
-          className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border text-xs ${
-            done ? 'border-emerald-500 bg-emerald-500 text-slate-950' : 'border-slate-600'
-          }`}
-        >
-          {done && '✓'}
+        <span className="grid w-5 shrink-0 place-items-center">
+          <span
+            className={`block rounded-full ${punto}`}
+            role="img"
+            aria-label={actual ? 'siguiente parada' : repaso ? 'repasar' : done ? 'hecha' : 'pendiente'}
+          />
         </span>
-        <span className={done ? 'text-slate-400 line-through' : 'text-slate-100'}>{unit.title}</span>
-        {unit.kind === 'project' && <span className="text-xs text-amber-400">proyecto</span>}
-        <span className="ml-auto flex shrink-0 gap-3 text-xs text-slate-500">
-          {unit.exercises.length > 0 && <span>{unit.exercises.length} ejercicios</span>}
-          {!unit.lesson && <span>contenido pendiente</span>}
-          <span>{unit.minutes} min</span>
+        <span className="w-8 shrink-0 font-mono text-xs text-fg-muted">{unit.id}</span>
+        <span className={`min-w-0 flex-1 ${done && !actual ? 'text-fg-muted' : ''} ${actual ? 'font-bold' : ''}`}>
+          {unit.title}
         </span>
+        {unit.kind === 'project' && <Tag>proyecto</Tag>}
+        <span className="tabular hidden shrink-0 text-sm text-fg-muted sm:inline">{detalle}</span>
       </Link>
     </li>
   )

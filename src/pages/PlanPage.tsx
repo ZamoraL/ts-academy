@@ -1,12 +1,14 @@
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { KindBadge } from '../components/DayCard'
 import { FeasibilityNote } from '../components/FeasibilityNote'
+import { link, plural } from '../components/styles'
+import { PageHeader } from '../components/ui'
 import { UNITS } from '../content'
 import { diffDays, formatLong, formatShort, todayISO } from '../lib/date'
 import { useSchedule } from '../lib/useSchedule'
 import { useProgress } from '../store/progress'
 import type { ScheduledDay } from '../types'
-import { Link } from 'react-router-dom'
 
 const titles = new Map(UNITS.map((u) => [u.id, u.title]))
 
@@ -27,51 +29,82 @@ export function PlanPage() {
   if (!schedule) return null
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Plan de estudio</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Del {formatLong(config.startDate)} al {formatLong(schedule.endDate)}. El plan se recalcula solo: si te saltas
-          un día, lo pendiente se mueve hacia adelante.
-        </p>
-        <div className="mt-2 text-sm">
-          <FeasibilityNote schedule={schedule} durationWeeks={config.durationWeeks} />
-        </div>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Horario"
+        meta={`Del ${formatLong(config.startDate)} al ${formatLong(schedule.endDate)}. Si te saltas un día, lo pendiente se mueve hacia adelante.`}
+      >
+        <Link to="/ajustes" className={`${link} text-sm`}>
+          Cambiar ritmo o duración
+        </Link>
+      </PageHeader>
+      <FeasibilityNote schedule={schedule} durationWeeks={config.durationWeeks} />
 
-      {weeks.map(([week, days]) => (
-        <section key={week}>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Semana {week}</h2>
-          <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800">
-            {days.map((d) => (
-              <li
-                key={d.date}
-                className={`flex flex-col gap-1 px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:gap-3 ${
-                  d.date === today ? 'bg-brand-500/5' : ''
-                } ${d.date > schedule.endDate ? 'opacity-60' : ''}`}
-              >
-                <span className="w-28 shrink-0 text-slate-400">
-                  {d.date === today ? 'Hoy' : formatShort(d.date)}
-                </span>
-                <KindBadge kind={d.kind} />
-                <span className="flex flex-wrap gap-x-3 text-slate-300">
-                  {d.kind === 'study'
-                    ? d.unitIds.map((id) => (
-                        <Link key={id} to={`/unidad/${id}`} className="hover:text-white hover:underline">
-                          {titles.get(id)}
+      {weeks.length === 0 && (
+        <p className="text-fg-muted">
+          No quedan servicios: recorriste todas las estaciones.{' '}
+          <Link to="/temario" className={link}>
+            Repasa cualquier estación desde el plano
+          </Link>
+          .
+        </p>
+      )}
+
+      <div>
+      {weeks.map(([week, days], i) => {
+        const unidades = days.reduce((n, d) => n + (d.kind === 'study' ? d.unitIds.length : 0), 0)
+        return (
+          // Las dos primeras semanas abiertas; el resto, resumidas.
+          <details key={week} open={i < 2} className="group open:mb-6">
+            <summary className="flex min-h-10 items-baseline gap-3 border-b border-border py-2 hover:bg-surface-2">
+              <span className="w-4 font-mono text-fg-muted" aria-hidden>
+                <span className="group-open:hidden">▸</span>
+                <span className="hidden group-open:inline">▾</span>
+              </span>
+              <h2 className="font-display text-base">Semana {week}</h2>
+              <span className="tabular font-mono text-xs text-fg-muted">
+                {formatShort(days[0].date)} – {formatShort(days.at(-1)!.date)} · {plural(unidades, 'unidad', 'unidades')}
+              </span>
+            </summary>
+            <ul className="divide-y divide-border">
+              {days.map((d) => {
+                const esHoy = d.date === today
+                return (
+                  <li
+                    key={d.date}
+                    aria-current={esHoy ? 'date' : undefined}
+                    className={`flex flex-col gap-1 py-2.5 pl-7 text-sm sm:flex-row sm:items-center sm:gap-3 ${
+                      esHoy ? 'rounded-md bg-surface-2 shadow-[inset_4px_0_0_var(--accent)]' : ''
+                    } ${d.date > schedule.endDate ? 'text-fg-muted' : ''}`}
+                  >
+                    <span className="flex w-48 shrink-0 items-center gap-3">
+                      <span className={`tabular w-24 first-letter:uppercase ${esHoy ? 'font-bold' : 'text-fg-muted'}`}>
+                        {esHoy ? 'Hoy' : formatShort(d.date)}
+                      </span>
+                      <KindBadge kind={d.kind} accent={esHoy} />
+                    </span>
+                    <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
+                      {d.kind === 'study' ? (
+                        d.unitIds.map((id) => (
+                          <Link key={id} to={`/unidad/${id}`} className="hover:underline">
+                            <span className="mr-1.5 font-mono text-xs text-fg-muted">{id}</span>
+                            {titles.get(id)}
+                          </Link>
+                        ))
+                      ) : (
+                        <Link to={`/repaso/${d.date}`} className="hover:underline">
+                          Repasar {plural(d.unitIds.length, 'estación', 'estaciones')}
                         </Link>
-                      ))
-                    : (
-                      <Link to={`/repaso/${d.date}`} className="hover:text-white hover:underline">
-                        Repasar {d.unitIds.length === 1 ? '1 unidad' : `${d.unitIds.length} unidades`}
-                      </Link>
-                    )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+                      )}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </details>
+        )
+      })}
+      </div>
     </div>
   )
 }

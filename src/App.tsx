@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createHashRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { Skeleton } from './components/ui'
 import { Dashboard } from './pages/Dashboard'
 import { Onboarding } from './pages/Onboarding'
 import { PlanPage } from './pages/PlanPage'
@@ -32,7 +33,7 @@ const router = createHashRouter([
           {
             path: 'unidad/:unitId',
             element: (
-              <Suspense fallback={<p className="text-slate-400">Cargando…</p>}>
+              <Suspense fallback={<Skeleton />}>
                 <UnitPage />
               </Suspense>
             ),
@@ -40,7 +41,7 @@ const router = createHashRouter([
           {
             path: 'repaso/:fecha',
             element: (
-              <Suspense fallback={<p className="text-slate-400">Cargando…</p>}>
+              <Suspense fallback={<Skeleton />}>
                 <ReviewPage />
               </Suspense>
             ),
